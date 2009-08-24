@@ -1,0 +1,5 @@
+include PKG-INFO
+include *.txt
+include *.py
+include buildout.cfg
+include src/rod/recipe/rabbitmq/README.txt
