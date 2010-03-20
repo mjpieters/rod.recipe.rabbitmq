@@ -122,7 +122,7 @@ NODENAME=rabbit
 [ "x" = "x$RABBITMQ_CTL_ERL_ARGS" ] && RABBITMQ_CTL_ERL_ARGS=${CTL_ERL_ARGS}
 
 exec %(erlang_path)s/erl \\
-    -pa "%(erlang_path)s/ebin" \\
+    -pa "%(rabbitmq_part)s/ebin" \\
     -noinput \\
     -hidden \\
     ${RABBITMQ_CTL_ERL_ARGS} \\
