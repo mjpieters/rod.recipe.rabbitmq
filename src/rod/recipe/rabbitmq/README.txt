@@ -25,7 +25,7 @@ We will define a buildout template used by the recipe:
     ...
     ... [rabbitmq]
     ... recipe = rod.recipe.rabbitmq
-    ... url = http://www.rabbitmq.com/releases/rabbitmq-server/v1.6.0/rabbitmq-server-1.6.0.tar.gz
+    ... url = http://www.rabbitmq.com/releases/rabbitmq-server/v1.7.2/rabbitmq-server-1.7.2.tar.gz
     ... """
 
 We'll start by creating a buildout:
@@ -36,6 +36,6 @@ We'll start by creating a buildout:
 Running the buildout gives us:
 
     >>> output = system(buildout)
-    >>> if output.endswith("ebin/rabbit_app.in > ebin/rabbit.app\n"): True
+    >>> if output.endswith("ebin ebin/rabbit.app < ebin/rabbit_app.in\n"): True
     ... else: print output
     True

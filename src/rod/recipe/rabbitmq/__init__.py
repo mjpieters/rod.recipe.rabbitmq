@@ -87,7 +87,7 @@ set -f
 exec %(erlang_path)s/erl \\
     -pa "%(rabbitmq_part)s/ebin" \\
     ${RABBITMQ_START_RABBIT} \\
-    -sname ${RABBITMQ_NODENAME} \\
+    -name ${RABBITMQ_NODENAME} \\
     -boot start_sasl \\
     +W w \\
     ${RABBITMQ_SERVER_ERL_ARGS} \\
@@ -115,17 +115,20 @@ exec %(erlang_path)s/erl \\
         ctl = os.path.join(bindir, 'rabbitmqctl')
 
         ctl_template = """#/bin/sh
-[ -f %(prefix)s/etc/rabbitmq.conf ] && . %(prefix)s/etc/rabbitmq.conf
 
+NODENAME=rabbit
+
+[ "x" = "x$RABBITMQ_NODENAME" ] && RABBITMQ_NODENAME=${NODENAME}
 [ "x" = "x$RABBITMQ_CTL_ERL_ARGS" ] && RABBITMQ_CTL_ERL_ARGS=${CTL_ERL_ARGS}
 
 exec %(erlang_path)s/erl \\
-    -pa "%(rabbitmq_part)s/ebin" \\
+    -pa "%(erlang_path)s/ebin" \\
     -noinput \\
     -hidden \\
     ${RABBITMQ_CTL_ERL_ARGS} \\
-    -sname rabbitmqctl$$ \\
+    -name rabbitmqctl$$ \\
     -s rabbit_control \\
+    -nodename $RABBITMQ_NODENAME \\
     -extra "$@"
 """ % locals()
 
