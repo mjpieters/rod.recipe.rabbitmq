@@ -197,7 +197,7 @@ exec %(erlang_path)s/erl \\
         os.environ['PYTHONPATH'] = r.location
         erlang_path = self.options.get('erlang-path',
                                        '/usr/local/lib/erlang/bin')
-        new_path = os.environ['PATH'].split(':') + [erlang_path]
+        new_path = [erlang_path] + os.environ['PATH'].split(':')
         os.environ['PATH'] = ':'.join(new_path)
 
         old_cwd = os.getcwd()

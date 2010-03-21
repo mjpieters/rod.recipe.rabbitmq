@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.1.1 2010-03-21
+----------------
+
+  - Fixes an issue where the Erlang path wasn't set correctly.
+
+
 1.1.0 2010-03-20
 ----------------
 
