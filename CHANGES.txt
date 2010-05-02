@@ -1,6 +1,12 @@
 Changes
 =======
 
+1.1.2 2010-05-02
+----------------
+
+  - fixed parameter in generated rabbitmq-server script (-sname instead
+    of -name)
+
 1.1.1 2010-03-21
 ----------------
 

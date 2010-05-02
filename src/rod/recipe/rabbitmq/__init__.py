@@ -87,7 +87,7 @@ set -f
 exec %(erlang_path)s/erl \\
     -pa "%(rabbitmq_part)s/ebin" \\
     ${RABBITMQ_START_RABBIT} \\
-    -name ${RABBITMQ_NODENAME} \\
+    -sname ${RABBITMQ_NODENAME} \\
     -boot start_sasl \\
     +W w \\
     ${RABBITMQ_SERVER_ERL_ARGS} \\
