@@ -126,7 +126,7 @@ exec %(erlang_path)s/erl \\
     -noinput \\
     -hidden \\
     ${RABBITMQ_CTL_ERL_ARGS} \\
-    -name rabbitmqctl$$ \\
+    -sname rabbitmqctl$$ \\
     -s rabbit_control \\
     -nodename $RABBITMQ_NODENAME \\
     -extra "$@"
