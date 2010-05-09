@@ -1,17 +1,25 @@
 Changes
 =======
 
+1.1.4 2010-05-09
+----------------
+
+  - Fixed issue where rabbitmq scripts used an incorrect default Erlang path
+    when no erlang-path option was specified.
+
+
 1.1.3 2010-05-03
 ----------------
 
-  - fixed parameter in generated rabbitmqctl script (-sname instead
-    of -name)
+  - Fixed parameter in generated rabbitmqctl script (-sname instead of -name).
+
 
 1.1.2 2010-05-02
 ----------------
 
-  - fixed parameter in generated rabbitmq-server script (-sname instead
-    of -name)
+  - Fixed parameter in generated rabbitmq-server script (-sname instead
+    of -name).
+
 
 1.1.1 2010-03-21
 ----------------

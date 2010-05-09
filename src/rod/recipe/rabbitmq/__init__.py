@@ -28,8 +28,11 @@ class Recipe(zc.recipe.egg.Eggs):
         server = os.path.join(bindir, 'rabbitmq-server')
 
         prefix = self.options.get('prefix', os.getcwd())
-        erlang_path = self.options.get(
-            'erlang-path', '/usr/local/lib/erlang/bin')
+        erlang_path = self.options.get('erlang-path')
+        if erlang_path:
+            erl = os.path.join(erlang_path, 'erl')
+        else:
+            erl = 'erl'
         rabbitmq_part = os.path.join(
             self.buildout['buildout']['parts-directory'], self.name)
 
@@ -84,7 +87,7 @@ RABBITMQ_START_RABBIT=
 # there is no other way of preventing their expansion.
 set -f
 
-exec %(erlang_path)s/erl \\
+exec %(erl)s \\
     -pa "%(rabbitmq_part)s/ebin" \\
     ${RABBITMQ_START_RABBIT} \\
     -sname ${RABBITMQ_NODENAME} \\
@@ -121,7 +124,7 @@ NODENAME=rabbit
 [ "x" = "x$RABBITMQ_NODENAME" ] && RABBITMQ_NODENAME=${NODENAME}
 [ "x" = "x$RABBITMQ_CTL_ERL_ARGS" ] && RABBITMQ_CTL_ERL_ARGS=${CTL_ERL_ARGS}
 
-exec %(erlang_path)s/erl \\
+exec %(erl)s \\
     -pa "%(rabbitmq_part)s/ebin" \\
     -noinput \\
     -hidden \\
@@ -195,10 +198,10 @@ exec %(erlang_path)s/erl \\
             pkg_resources.Requirement.parse('simplejson'))
 
         os.environ['PYTHONPATH'] = r.location
-        erlang_path = self.options.get('erlang-path',
-                                       '/usr/local/lib/erlang/bin')
-        new_path = [erlang_path] + os.environ['PATH'].split(':')
-        os.environ['PATH'] = ':'.join(new_path)
+        erlang_path = self.options.get('erlang-path')
+        if erlang_path:
+            new_path = [erlang_path] + os.environ['PATH'].split(':')
+            os.environ['PATH'] = ':'.join(new_path)
 
         old_cwd = os.getcwd()
         os.chdir(dst)
