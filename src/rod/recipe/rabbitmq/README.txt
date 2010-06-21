@@ -11,6 +11,10 @@ url
 
 prefix
     Prefix path (default = <buildout directory>).
+
+cookie 
+    Optional string passed as cookie to the erl runtime (-setcookie)
+
  
 
 Tests

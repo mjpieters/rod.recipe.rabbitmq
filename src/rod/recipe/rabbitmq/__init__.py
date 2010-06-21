@@ -27,6 +27,11 @@ class Recipe(zc.recipe.egg.Eggs):
         bindir = self.buildout['buildout']['bin-directory']
         server = os.path.join(bindir, 'rabbitmq-server')
 
+        cookie_option = ''   
+        cookie = self.options.get('cookie', None)
+        if cookie:
+            cookie_option = ' -setcookie "%s" ' % cookie
+
         prefix = self.options.get('prefix', os.getcwd())
         erlang_path = self.options.get('erlang-path')
         if erlang_path:
@@ -96,6 +101,7 @@ exec %(erl)s \\
     ${RABBITMQ_SERVER_ERL_ARGS} \\
     -rabbit tcp_listeners '[{"'${RABBITMQ_NODE_IP_ADDRESS}'", '${RABBITMQ_NODE_PORT}'}]' \\
     -sasl errlog_type error \\
+    %(cookie_option)s \\
     -kernel error_logger '{file,"'${RABBITMQ_LOGS}'"}' \\
     -sasl sasl_error_logger '{file,"'${RABBITMQ_SASL_LOGS}'"}' \\
     -os_mon start_cpu_sup true \\

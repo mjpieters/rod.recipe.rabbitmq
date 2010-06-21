@@ -1,6 +1,13 @@
 Changes
 =======
 
+1.1.5 2010-06-21
+----------------
+
+  - added support for setting an optional erlang cookie (-setcookie)
+    through the 'cookie' option
+
+
 1.1.4 2010-05-09
 ----------------
 
