@@ -1,6 +1,14 @@
 Changes
 =======
 
+1.1.6 2010-06-21
+----------------
+
+  - using rabbit@localhost as NODENAME in order to provide portability
+    of the database across machines independent of the hostname since
+    you can not start RabbitMQ on a different machine with a different hostname
+    (the database is tied to the hostname)
+
 1.1.5 2010-06-21
 ----------------
 

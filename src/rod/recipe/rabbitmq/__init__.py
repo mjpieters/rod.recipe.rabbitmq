@@ -42,7 +42,7 @@ class Recipe(zc.recipe.egg.Eggs):
             self.buildout['buildout']['parts-directory'], self.name)
 
         server_template = """#!/bin/sh
-NODENAME=rabbit
+NODENAME=rabbit@localhost
 NODE_IP_ADDRESS=0.0.0.0
 NODE_PORT=5672
 SERVER_ERL_ARGS="+K true +A30 \
@@ -125,7 +125,7 @@ exec %(erl)s \\
 
         ctl_template = """#/bin/sh
 
-NODENAME=rabbit
+NODENAME=rabbit@localhost
 
 [ "x" = "x$RABBITMQ_NODENAME" ] && RABBITMQ_NODENAME=${NODENAME}
 [ "x" = "x$RABBITMQ_CTL_ERL_ARGS" ] && RABBITMQ_CTL_ERL_ARGS=${CTL_ERL_ARGS}
