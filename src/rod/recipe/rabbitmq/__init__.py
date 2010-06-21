@@ -134,6 +134,7 @@ exec %(erl)s \\
     -pa "%(rabbitmq_part)s/ebin" \\
     -noinput \\
     -hidden \\
+    %(cookie_option)s \\
     ${RABBITMQ_CTL_ERL_ARGS} \\
     -sname rabbitmqctl$$ \\
     -s rabbit_control \\
