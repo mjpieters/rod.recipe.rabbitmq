@@ -8,6 +8,10 @@ Changes
 
   - Use the buildout download cache if available.
 
+  - Refactor script generation: reuse the existing scripts and customize them
+    using the built-in rabbitmq-env sourcing option. This ensures we always
+    use an appropriate rabbitmq-server script for the installed version.
+
 
 1.1.6 2010-06-21
 ----------------

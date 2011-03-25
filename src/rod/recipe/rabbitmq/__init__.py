@@ -24,135 +24,59 @@ class Recipe(zc.recipe.egg.Eggs):
     def gen_scripts(self):
         """Generates RabbitMQ bin scripts."""
 
+        buildout = self.buildout['buildout']['directory']
         bindir = self.buildout['buildout']['bin-directory']
-        server = os.path.join(bindir, 'rabbitmq-server')
+        part = self.options['location']
 
         cookie_option = ''   
         cookie = self.options.get('cookie', None)
         if cookie:
-            cookie_option = ' -setcookie "%s" ' % cookie
+            cookie_option = '-setcookie \\"%s\\"' % cookie
 
-        prefix = self.options.get('prefix', os.getcwd())
         erlang_path = self.options.get('erlang-path')
         if erlang_path:
-            erl = os.path.join(erlang_path, 'erl')
+            erlang_path = 'PATH=%s:$PATH' % erlang_path
         else:
-            erl = 'erl'
-        rabbitmq_part = os.path.join(
-            self.buildout['buildout']['parts-directory'], self.name)
+            erlang_path = ''
 
-        server_template = """#!/bin/sh
-NODENAME=rabbit@localhost
-NODE_IP_ADDRESS=0.0.0.0
-NODE_PORT=5672
-SERVER_ERL_ARGS="+K true +A30 \
--kernel inet_default_listen_options [{nodelay,true},{sndbuf,16384},{recbuf,4096}] \
--kernel inet_default_connect_options [{nodelay,true}]"
-CLUSTER_CONFIG_FILE=%(prefix)s/etc/rabbitmq_cluster.config
-LOG_BASE=%(prefix)s/var/log/rabbitmq
-MNESIA_BASE=%(prefix)s/var
-SERVER_START_ARGS=
+        rabbitmq_env_template = """\
+# rod.recipe.rabbitmq specific overrides
+RABBITMQ_HOME="%(part)s"
+[ "x" = "x$HOSTNAME" ] && HOSTNAME=`env hostname`
+NODENAME=rabbit@${HOSTNAME%%%%.*}
+CONFIG_FILE=%(buildout)s/etc/rabbitmq
+LOG_BASE=%(buildout)s/var/log/rabbitmq
+MNESIA_BASE=%(buildout)s/var/rabbitmq/mnesia
+SERVER_START_ARGS="%(cookie_option)s"
+RABBITMQ_CTL_ERL_ARGS="%(cookie_option)s"
+%(erlang_path)s
 
-[ -f %(prefix)s/etc/rabbitmq.conf ] && . %(prefix)s/etc/rabbitmq.conf
+[ -f %(buildout)s/etc/rabbitmq-env.conf ] && . %(buildout)s/etc/rabbitmq-env.conf
 
-[ "x" = "x$RABBITMQ_NODENAME" ] && RABBITMQ_NODENAME=${NODENAME}
-[ "x" = "x$RABBITMQ_NODE_IP_ADDRESS" ] && RABBITMQ_NODE_IP_ADDRESS=${NODE_IP_ADDRESS}
-[ "x" = "x$RABBITMQ_NODE_PORT" ] && RABBITMQ_NODE_PORT=${NODE_PORT}
-[ "x" = "x$RABBITMQ_SERVER_ERL_ARGS" ] && RABBITMQ_SERVER_ERL_ARGS=${SERVER_ERL_ARGS}
-[ "x" = "x$RABBITMQ_CLUSTER_CONFIG_FILE" ] && RABBITMQ_CLUSTER_CONFIG_FILE=${CLUSTER_CONFIG_FILE}
-[ "x" = "x$RABBITMQ_LOG_BASE" ] && RABBITMQ_LOG_BASE=${LOG_BASE}
-[ "x" = "x$RABBITMQ_MNESIA_BASE" ] && RABBITMQ_MNESIA_BASE=${MNESIA_BASE}
-[ "x" = "x$RABBITMQ_SERVER_START_ARGS" ] && RABBITMQ_SERVER_START_ARGS=${SERVER_START_ARGS}
-
-[ "x" = "x$RABBITMQ_MNESIA_DIR" ] && RABBITMQ_MNESIA_DIR=${MNESIA_DIR}
-[ "x" = "x$RABBITMQ_MNESIA_DIR" ] && RABBITMQ_MNESIA_DIR=${RABBITMQ_MNESIA_BASE}/${RABBITMQ_NODENAME}
-
-## Log rotation
-[ "x" = "x$RABBITMQ_LOGS" ] && RABBITMQ_LOGS=${LOGS}
-[ "x" = "x$RABBITMQ_LOGS" ] && RABBITMQ_LOGS="${RABBITMQ_LOG_BASE}/${RABBITMQ_NODENAME}.log"
-[ "x" = "x$RABBITMQ_SASL_LOGS" ] && RABBITMQ_SASL_LOGS=${SASL_LOGS}
-[ "x" = "x$RABBITMQ_SASL_LOGS" ] && RABBITMQ_SASL_LOGS="${RABBITMQ_LOG_BASE}/${RABBITMQ_NODENAME}-sasl.log"
-[ "x" = "x$RABBITMQ_BACKUP_EXTENSION" ] && RABBITMQ_BACKUP_EXTENSION=${BACKUP_EXTENSION}
-[ "x" = "x$RABBITMQ_BACKUP_EXTENSION" ] && RABBITMQ_BACKUP_EXTENSION=".1"
-
-[ -f  "${RABBITMQ_LOGS}" ] && cat "${RABBITMQ_LOGS}" >> "${RABBITMQ_LOGS}${RABBITMQ_BACKUP_EXTENSION}"
-[ -f  "${RABBITMQ_SASL_LOGS}" ] && cat "${RABBITMQ_SASL_LOGS}" >> "${RABBITMQ_SASL_LOGS}${RABBITMQ_BACKUP_EXTENSION}"
-
-if [ -f "$RABBITMQ_CLUSTER_CONFIG_FILE" ]; then
-    RABBITMQ_CLUSTER_CONFIG_OPTION="-rabbit cluster_config \"$RABBITMQ_CLUSTER_CONFIG_FILE\""
-else
-    RABBITMQ_CLUSTER_CONFIG_OPTION=""
-fi
-
-RABBITMQ_START_RABBIT=
-[ "x" = "x$RABBITMQ_NODE_ONLY" ] && RABBITMQ_START_RABBIT='-noinput -s rabbit'
-
-# we need to turn off path expansion because some of the vars, notably
-# RABBITMQ_SERVER_ERL_ARGS, contain terms that look like globs and
-# there is no other way of preventing their expansion.
-set -f
-
-exec %(erl)s \\
-    -pa "%(rabbitmq_part)s/ebin" \\
-    ${RABBITMQ_START_RABBIT} \\
-    -sname ${RABBITMQ_NODENAME} \\
-    -boot start_sasl \\
-    +W w \\
-    ${RABBITMQ_SERVER_ERL_ARGS} \\
-    -rabbit tcp_listeners '[{"'${RABBITMQ_NODE_IP_ADDRESS}'", '${RABBITMQ_NODE_PORT}'}]' \\
-    -sasl errlog_type error \\
-    %(cookie_option)s \\
-    -kernel error_logger '{file,"'${RABBITMQ_LOGS}'"}' \\
-    -sasl sasl_error_logger '{file,"'${RABBITMQ_SASL_LOGS}'"}' \\
-    -os_mon start_cpu_sup true \\
-    -os_mon start_disksup false \\
-    -os_mon start_memsup false \\
-    -os_mon start_os_sup false \\
-    -os_mon memsup_system_only true \\
-    -os_mon system_memory_high_watermark 0.95 \\
-    -mnesia dir "\\"${RABBITMQ_MNESIA_DIR}\\"" \\
-    ${RABBITMQ_CLUSTER_CONFIG_OPTION} \\
-    ${RABBITMQ_SERVER_START_ARGS} \\
-    "$@"
 """ % locals()
 
-        script = open(server, "w")
-        script.write(server_template)
+        rabbitmq_env = os.path.join(bindir, 'rabbitmq-env')
+        script = open(rabbitmq_env, "w")
+        script.write(rabbitmq_env_template)
         script.close()
-        os.chmod(server, 0755)
+        os.chmod(rabbitmq_env, 0755)
 
-        ctl = os.path.join(bindir, 'rabbitmqctl')
+        paths = [rabbitmq_env]
 
-        ctl_template = """#/bin/sh
+        for script in ('rabbitmq-server', 'rabbitmqctl'):
+            link = os.path.join(bindir, script)
+            os.symlink(os.path.join(part, 'scripts', script), link)
+            paths.append(link)
 
-NODENAME=rabbit@localhost
-
-[ "x" = "x$RABBITMQ_NODENAME" ] && RABBITMQ_NODENAME=${NODENAME}
-[ "x" = "x$RABBITMQ_CTL_ERL_ARGS" ] && RABBITMQ_CTL_ERL_ARGS=${CTL_ERL_ARGS}
-
-exec %(erl)s \\
-    -pa "%(rabbitmq_part)s/ebin" \\
-    -noinput \\
-    -hidden \\
-    %(cookie_option)s \\
-    ${RABBITMQ_CTL_ERL_ARGS} \\
-    -sname rabbitmqctl$$ \\
-    -s rabbit_control \\
-    -nodename $RABBITMQ_NODENAME \\
-    -extra "$@"
-""" % locals()
-
-        script = open(ctl, "w")
-        script.write(ctl_template)
-        script.close()
-        os.chmod(ctl, 0755)
+        return paths
 
     def install_rabbitmq(self):
         """Downloads and installs RabbitMQ."""
 
         arch_filename = self.options['url'].split(os.sep)[-1]
-        dst = os.path.join(self.buildout['buildout']['parts-directory'],
-                           self.name)
+        dst = self.options.setdefault('location',
+            os.path.join(self.buildout['buildout']['parts-directory'],
+            self.name))
         # Re-use the buildout download cache if defined
         downloads_dir = self.buildout['buildout'].get('download-cache')
         if downloads_dir is None:
@@ -222,12 +146,12 @@ exec %(erl)s \\
             raise Exception("building RabbitMQ failed")
         os.chdir(old_cwd)
         
-        self.gen_scripts()
+        paths = self.gen_scripts()
 
         for path in remove_after_install:
             shutil.rmtree(path)
 
-        return (dst,)
+        return paths + [dst]
 
     def install(self):
         """Creates the part."""
@@ -235,8 +159,4 @@ exec %(erl)s \\
         return self.install_rabbitmq()
 
     def update(self):
-        """Updates the part."""
-
-        dst = os.path.join(self.buildout['buildout']['parts-directory'],
-                           self.name)
-        return (dst,)
+        pass

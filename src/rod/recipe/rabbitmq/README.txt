@@ -15,7 +15,15 @@ prefix
 cookie 
     Optional string passed as cookie to the erl runtime (-setcookie)
 
- 
+To further customize your rabbitmq server configuration, create a rabbitmq-env
+file in the etc/ directory of your buildout, following the `RabbitMQ
+configuration guide`_ to set environment variables.
+
+You can also create a rabbitmq file in the same location to provide erlang
+configuration statements.
+
+.. _RabbitMQ configuration guide: http://www.rabbitmq.com/configure.html
+
 
 Tests
 =====
@@ -29,7 +37,7 @@ We will define a buildout template used by the recipe:
     ...
     ... [rabbitmq]
     ... recipe = rod.recipe.rabbitmq
-    ... url = http://www.rabbitmq.com/releases/rabbitmq-server/v1.7.2/rabbitmq-server-1.7.2.tar.gz
+    ... url = http://www.rabbitmq.com/releases/rabbitmq-server/v2.4.0/rabbitmq-server-2.4.0.tar.gz
     ... """
 
 We'll start by creating a buildout:
