@@ -1,6 +1,11 @@
 Changes
 =======
 
+2.0.0 Unreleased
+----------------
+
+  - Update erlang-path documentation to reflect reality.
+
 1.1.6 2010-06-21
 ----------------
 

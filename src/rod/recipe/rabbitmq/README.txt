@@ -4,7 +4,7 @@ A brief documentation
 This recipe takes a number of options:
 
 erlang-path
-    The path where to find the erlc command (default = /usr/local/bin).
+    The path where to find the erlc command (default = find it in your path).
 
 url
     The URL to download the RabbitMQ source distribution.
