@@ -6,6 +6,9 @@ Changes
 
   - Update erlang-path documentation to reflect reality.
 
+  - Use the buildout download cache if available.
+
+
 1.1.6 2010-06-21
 ----------------
 
