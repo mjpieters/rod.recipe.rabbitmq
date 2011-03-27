@@ -19,8 +19,8 @@ To further customize your rabbitmq server configuration, create a rabbitmq-env
 file in the etc/ directory of your buildout, following the `RabbitMQ
 configuration guide`_ to set environment variables.
 
-You can also create a rabbitmq file in the same location to provide erlang
-configuration statements.
+You can also create a rabbitmq.config file in the same location to provide
+erlang configuration statements.
 
 .. _RabbitMQ configuration guide: http://www.rabbitmq.com/configure.html
 
